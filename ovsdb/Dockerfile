@@ -28,7 +28,12 @@ RUN mkdir -p /usr/local/var/log/openvswitch \
     /usr/local/etc/openvswitch
 RUN ovsdb-tool create /usr/local/etc/openvswitch/conf.db \
     /usr/local/share/openvswitch/vswitch.ovsschema
+RUN ovsdb-server --remote=punix:/usr/local/var/run/openvswitch/db.sock \
+    --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
+    --log-file=/usr/local/var/log/openvswitch/ovsdb-server.log \
+    --pidfile --detach
 RUN ovs-vsctl --no-wait init
+RUN pkill ovsdb-server
 
 RUN rm -rf /tmp/ovs
 
