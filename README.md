@@ -13,15 +13,10 @@ This is primarily so ovs-vswitchd can load the ovs kernel module.
 ### Typical deployment
 The following script will boot ovsdb and ovs-vswitchd  per [INSTALL.md]
 
-    mkdir -p /var/run/ovs
+    docker run -d --net=host --name=ovsdb-server quay.io/netsys/ovsdb-server
 
-    docker run -d --privileged --net=host --name=ovsdb \
-        -v /var/run/ovs:/usr/local/var/run/openvswitch:rw \
-        ovsdb
-
-    docker run -d --privileged --net=host --name=ovs-vswitchd \
-        -v /var/run/ovs:/usr/local/var/run/openvswitch:rw \
-        ovs-vswitchd
+    docker run -d --volumes-from ovsdb-server --privileged --net=host \
+    --name=ovs-vswitchd quay.io/netsys/ovs-vswitchd
 
 Then the usual ovs utitlies like `ovs-vsctl`, `ovs-ofctl`, etc... can be run
 by simply prepending `docker exec ovs-vswitchd`, or `docker exec ovsdb` depending
@@ -34,40 +29,20 @@ using geneve tunneling between hosts, the following scripts would do the job
 
 On the northd host:
 
-    mkdir -p /var/run/ovs
+    docker run -d --net=host --name=ovsdb-server quay.io/netsys/ovsdb-server
 
-    docker run -d --privileged --net=host --name=ovsdb \
-        -v /var/run/ovs:/usr/local/var/run/openvswitch:rw \
-        ovsdb
-
-    docker run -d --privileged --net=host --name=ovs-northd \
-        -v /var/run/ovs:/usr/local/var/run/openvswitch:rw \
-        ovn-northd
+    docker run -d --net=host --volumes-from ovsdb-server --name=ovn-northd \
+    quay.io/netsys/ovn-northd -v /var/run/docker.sock
 
 On each host running containers:
 
-    mkdir -p /var/run/ovs
+    docker run -d --net=host --name=ovsdb-server quay.io/netsys/ovsdb-server
 
-    docker run -d --privileged --net=host --name=ovsdb \
-        -v /var/run/ovs:/usr/local/var/run/openvswitch:rw \
-        ovsdb
+    docker run -d --volumes-from ovsdb-server --privileged --net=host \
+    --name=ovs-vswitchd quay.io/netsys/ovs-vswitchd
 
-    docker run -d --privileged --net=host --name=ovs-vswitchd \
-        -v /var/run/ovs:/usr/local/var/run/openvswitch:rw \
-        -v /var/run/docker.sock:/var/run/docker.sock:rw \
-        -v /etc/docker:/etc/docker:rw \
-        ovs-vswitchd
-
-    docker exec ovs-vswitchd ovs-vsctl set Open_vSwitch . \
-        external_ids:ovn-remote="tcp:<NORTHD_HOST_IP>:6640" \
-        external_ids:ovn-encap-ip=<LOCAL_IP> \
-        external_ids:ovn-encap-type="geneve"
-
-    docker run -d --privileged --net=host --name=ovn-controller \
-        -v /var/run/ovs:/usr/local/var/run/openvswitch:rw \
-        -v /var/run/docker.sock:/var/run/docker.sock:rw \
-        -v /etc/docker:/etc/docker:rw \
-        ovn-controller
+    docker run -d --net=host --volumes-from ovsdb-server --name=ovs-northd \
+    quay.io/netsys/ovn-northd
 
     docker exec ovn-controller ovn-docker-overlay-driver --detach
 
