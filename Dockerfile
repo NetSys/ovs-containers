@@ -7,12 +7,12 @@ ENV deps \
     pkg-config \
     libssl-dev \
     git \
-    python \
     perl
 
 WORKDIR /tmp/ovs
 RUN \
 apt-get update \
+&& apt-get install -y python2.7 \
 && apt-get install -y python-flask \
 && apt-get install -y ${deps} \
 && git clone https://github.com/openvswitch/ovs /tmp/ovs \
