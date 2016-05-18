@@ -1,13 +1,13 @@
 all:
-	docker build -t quay.io/netsys/ovs-base .
-	docker build -t quay.io/netsys/ovs-vswitchd ./ovs-vswitchd
-	docker build -t quay.io/netsys/ovsdb-server ./ovsdb-server
-	docker build -t quay.io/netsys/ovn-northd ./ovn-northd
-	docker build -t quay.io/netsys/ovn-controller ./ovn-controller
+	docker build -t quilt/ovs:vswitchd ./ovs-vswitchd
+	docker build -t quilt/ovs:ovsdb ./ovsdb-server
+	docker build -t quilt/ovs:ovn-northd ./ovn-northd
+	docker build -t quilt/ovs:ovn-controller ./ovn-controller
+	docker build -t quilt/ovs:latest .
 
 push:
-	docker push quay.io/netsys/ovs-base
-	docker push quay.io/netsys/ovs-vswitchd
-	docker push quay.io/netsys/ovn-northd
-	docker push quay.io/netsys/ovn-controller
-	docker push quay.io/netsys/ovsdb-server
+	docker push quilt/ovs:latest
+	docker push quilt/ovs:vswitchd
+	docker push quilt/ovs:ovsdb
+	docker push quilt/ovs:ovn-northd
+	docker push quilt/ovs:ovn-controller

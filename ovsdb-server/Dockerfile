@@ -1,4 +1,4 @@
-FROM quay.io/netsys/ovs-base
+FROM quilt/ovs:latest
 
 ENTRYPOINT ["ovsdb-server", \
     "--remote=punix:/var/run/openvswitch/db.sock", \
