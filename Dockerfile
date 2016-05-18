@@ -6,6 +6,7 @@ ENV deps \
     autoconf \
     pkg-config \
     libssl-dev \
+    python-pip \
     git \
     perl
 
@@ -15,7 +16,9 @@ apt-get update \
 && apt-get install -y python2.7 \
 && apt-get install -y python-flask \
 && apt-get install -y ${deps} \
-&& git clone https://github.com/openvswitch/ovs /tmp/ovs \
+&& pip install six \
+&& git clone https://github.com/openvswitch/ovs.git /tmp/ovs \
+&& git checkout origin/branch-2.5 \
 && ./boot.sh \
 && ./configure --localstatedir="/var" --sysconfdir="/etc" --prefix="/usr" --enable-ssl \
 && make install \
